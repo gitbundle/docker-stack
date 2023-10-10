@@ -96,7 +96,7 @@ docker compose exec -u postgres db createdb --encoding=UTF8 bundle-deployments
 
 ## repository with a bad url
 ```console
-http://example.example.gitbundle/bundle/hello
+http://example.gitbundle:4000/bundle/hello
 ```
 
 > solution, update the following configuration to `data/gitbundle/gitbundle/conf/app.ini`, then restart the docker stack.
