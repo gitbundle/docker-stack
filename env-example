@@ -1,4 +1,4 @@
-DOMAIN=example.gitbundle
+DOMAIN=example.gitbundle.com
 DB_HOST=db:5432
 SECRET_KEY=your-32-length-secret # exclude special characters maybe better
 SSH_PORT=22
@@ -8,7 +8,7 @@ BUNDLE_BUILDS_SERVER_PROXY_HOST=bundle-builds:8080
 BUNDLE_BUILDS_DATABASE_DRIVER=postgres
 BUNDLE_BUILDS_DATABASE_DATASOURCE=postgres://postgres:postgres@db:5432/bundle-builds?sslmode=disable
 BUNDLE_BUILDS_DATABASE_SECRET=your-32-length-secret
-BUNDLE_BUILDS_GITBUNDLE_SERVER=https://example.gitbundle
+BUNDLE_BUILDS_GITBUNDLE_SERVER=http://example.gitbundle.com
 BUNDLE_BUILDS_GITBUNDLE_DEBUG=false
 BUNDLE_BUILDS_GITBUNDLE_SKIP_VERIFY=true
 BUNDLE_BUILDS_COOKIE_SECRET=your-32-length-secret
@@ -16,7 +16,7 @@ BUNDLE_BUILDS_WEBHOOK_ENDPOINT=
 BUNDLE_BUILDS_RPC_SECRET=your-32-length-secret
 BUNDLE_BUILDS_RUNNER_CAPACITY=10
 BUNDLE_BUILDS_ARTEFACT_DOCKER_BASE_IMAGE=gitbundle/bundle-docker
-BUNDLE_BUILDS_ARTEFACT_DOCKER_REGISTRY_HOST=example.gitbundle
+BUNDLE_BUILDS_ARTEFACT_DOCKER_REGISTRY_HOST=example.gitbundle.com
 BUNDLE_BUILDS_ARTEFACT_DEBUG_BUILD=true
 BUNDLE_BUILDS_ARTEFACT_DUMP_BUILD=true
 BUNDLE_BUILDS_NSQ_CLUSTER_TCP_ADDR=nsq:4150
@@ -25,12 +25,12 @@ BUNDLE_BUILDS_PLUGIN_TOKEN=auto-generated-by-GitBundle
 
 # bundle runner
 # For security limitation, please use safe docker image, better to use your own.
-# example.gitbundle/gitbundle/bundle-docker used for build docker image,
+# example.gitbundle.com/gitbundle/bundle-docker used for build docker image,
 # you can fork from gitbundle.com/gitbundle/bundle-docker and build your own. Or just use gitbundle/bundle-docker
-BUNDLE_BUILDS_PRIVILEGED_IMAGES=gitbundle/bundle-docker,example.gitbundle/gitbundle/bundle-docker
+BUNDLE_BUILDS_PRIVILEGED_IMAGES=gitbundle/bundle-docker,example.gitbundle.com/gitbundle/bundle-docker
 
 # bundle deployments server
-BUNDLE_DEPLOYMENTS_GITBUNDLE_SERVER=http://example.gitbundle
+BUNDLE_DEPLOYMENTS_GITBUNDLE_SERVER=http://example.gitbundle.com
 BUNDLE_DEPLOYMENTS_GITBUNDLE_SKIP_VERIFY=true # maybe need for https, for http no need to configure
 BUNDLE_DEPLOYMENTS_DATABASE_DRIVER=postgres
 BUNDLE_DEPLOYMENTS_DATABASE_HOST=db:5432
@@ -43,11 +43,11 @@ BUNDLE_DEPLOYMENTS_NSQ_AUTH_SECRET=
 BUNDLE_DEPLOYMENTS_PLUGIN_TOKEN=auto-generated-by-GitBundle
 
 # bundle pods server
-BUNDLE_PODS_GITBUNDLE_SERVER=https://example.gitbundle # this is used for user to access kubernetes container, as some security limitation
+BUNDLE_PODS_GITBUNDLE_SERVER=http://example.gitbundle.com # this is used for user to access kubernetes container, as some security limitation
 BUNDLE_PODS_GITBUNDLE_SKIP_VERIFY=true
 BUNDLE_PODS_PLUGIN_TOKEN=auto-generated-by-GitBundle
 
 # bundle metrics server
-BUNDLE_METRICS_GITBUNDLE_SERVER=http://example.gitbundle
+BUNDLE_METRICS_GITBUNDLE_SERVER=http://example.gitbundle.com
 BUNDLE_METRICS_GITBUNDLE_SKIP_VERIFY=true
 BUNDLE_METRICS_PLUGIN_TOKEN=auto-generated-by-GitBundle
