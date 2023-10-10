@@ -24,7 +24,7 @@ def haproxyDependsOn():
 def commonVolumes():
     return [
         "/etc/localtime:/etc/localtime:ro", # sync localtime to container, worked for linux
-        "/etc/hosts:/etc/hosts:ro", # this maybe no need
+        "/etc/hosts:/etc/hosts:ro", # this maybe no need, when you have real-network domains
     ]
 
 
@@ -42,7 +42,7 @@ def main():
             "bundle-metrics": bundlePluginServer("BUNDLE_METRICS", ["db", "gitbundle", "redis-server", "nsq"]),
             "bundle-builds": bundleBuildsServer(bundleBuildsServerDependsOn),
             "bundle-runner-amd64": bundleRunnerServer("amd64", ["bundle-builds"]),
-            "bundle-runner-arm64": bundleRunnerServer("arm64", ["bundle-builds"]),
+            # "bundle-runner-arm64": bundleRunnerServer("arm64", ["bundle-builds"]),
             "haproxy": haproxy(haproxyDependsOn()),
             "redis-server": redisServer(),
             "nsq": nsq(),
@@ -70,14 +70,6 @@ def gitbundle(dependsOn, containerName, image):
                 "gitbundle-data:/data",
             ]
         ),
-        "deploy": {
-            "resources": {
-                "limits": {
-                    "cpus": "4.0",
-                    "memory": "800M",
-                },
-            },
-        },
         "environment": [
             'APP_NAME=${APP_NAME:-"GitBundle"}',
             "RUN_USER=${RUN_USER:-git}",
@@ -89,7 +81,7 @@ def gitbundle(dependsOn, containerName, image):
             "SSH_PORT=${SSH_PORT:-22}",
             "LFS_START_SERVER=${LFS_START_SERVER:-true}",
             "DB_TYPE=${DB_TYPE:-postgres}",
-            "DB_HOST=${DB_HOST:-localhost:5432}",
+            "DB_HOST=${DB_HOST:-db:5432}",
             "DB_NAME=${DB_NAME:-gitbundle}",
             "DB_USER=${DB_USER:-postgres}",
             "DB_PASSWD=${DB_PASSWD:-postgres}",
@@ -112,14 +104,6 @@ def bundlePluginServer(pluginName, dependsOn):
         "container_name": "%s" % pluginName.replace("_", "-").lower(),
         "image": "gitbundle/%s" % pluginName.replace("_", "-").lower(),
         "volumes": containerVolumes([]),
-        "deploy": {
-            "resources": {
-                "limits": {
-                    "cpus": "2.0",
-                    "memory": "200M",
-                },
-            },
-        },
         "environment": [
             # gitbundle
             "%s_GITBUNDLE_SERVER=${%s_GITBUNDLE_SERVER:-}" % (pluginName, pluginName),
@@ -156,14 +140,6 @@ def bundleBuildsServer(dependsOn):
         "ports": [
             "8080:8080",
         ],
-        "deploy": {
-            "resources": {
-                "limits": {
-                    "cpus": "2.0",
-                    "memory": "400M",
-                },
-            },
-        },
         "environment": [
             "BUNDLE_BUILDS_SERVER_HOST=${BUNDLE_BUILDS_SERVER_HOST:-localhost:8080}",
             "BUNDLE_BUILDS_SERVER_PORT=${BUNDLE_BUILDS_SERVER_PORT:-:8080}",
@@ -173,7 +149,7 @@ def bundleBuildsServer(dependsOn):
             "BUNDLE_BUILDS_RPC_SECRET=${BUNDLE_BUILDS_RPC_SECRET:-}",
             "BUNDLE_BUILDS_COOKIE_SECRET=${BUNDLE_BUILDS_COOKIE_SECRET:-}",
             "BUNDLE_BUILDS_COOKIE_TIMEOUT=${BUNDLE_BUILDS_COOKIE_TIMEOUT:-720h}",
-            "BUNDLE_BUILDS_GITBUNDLE_SERVER=${BUNDLE_BUILDS_GITBUNDLE_SERVER:-http://gitbundle:4000}",
+            "BUNDLE_BUILDS_GITBUNDLE_SERVER=${BUNDLE_BUILDS_GITBUNDLE_SERVER:-http://example.gitbundle}",
             "BUNDLE_BUILDS_GITBUNDLE_DEBUG=${BUNDLE_BUILDS_GITBUNDLE_DEBUG:-false}",
             "BUNDLE_BUILDS_GITBUNDLE_SKIP_VERIFY=${BUNDLE_BUILDS_GITBUNDLE_SKIP_VERIFY:-true}",
             "BUNDLE_BUILDS_DATABASE_DRIVER=${BUNDLE_BUILDS_DATABASE_DRIVER:-postgres}",
@@ -203,14 +179,6 @@ def bundleRunnerServer(arch, dependsOn):
         "container_name": "bundle-runner-%s" % arch,
         "image": "gitbundle/bundle-builds-runner-docker",
         "platform": "linux/%s" % arch,
-        "deploy": {
-            "resources": {
-                "limits": {
-                    "cpus": "2.0",
-                    "memory": "200M",
-                },
-            },
-        },
         "volumes": containerVolumes(
             [
                 "/var/run/docker.sock:/var/run/docker.sock",
@@ -241,11 +209,12 @@ def haproxy(dependsOn):
         "image": "haproxy:lts-alpine",
         "ports": [
             "22:22",
+            "80:80",
             "443:443",
         ],
         "volumes": containerVolumes(
             [
-                "./haproxy.cfg:/etc/haproxy/haproxy.cfg:ro",
+                "./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro",
             ]
         ),
         "depends_on": dependsOn,
@@ -262,14 +231,6 @@ def redisServer():
             "6379:6379",
         ],
         "volumes": containerVolumes([]),
-        "deploy": {
-            "resources": {
-                "limits": {
-                    "cpus": "0.5",
-                    "memory": "200M",
-                },
-            },
-        },
         "restart": "always",
         "networks": networks(),
     }

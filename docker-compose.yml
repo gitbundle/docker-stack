@@ -8,11 +8,6 @@ services:
     - gitbundle-data:/data
     - /etc/localtime:/etc/localtime:ro
     - /etc/hosts:/etc/hosts:ro
-    deploy:
-      resources:
-        limits:
-          cpus: '4.0'
-          memory: 800M
     environment:
     - APP_NAME=${APP_NAME:-"GitBundle"}
     - RUN_USER=${RUN_USER:-git}
@@ -24,7 +19,7 @@ services:
     - SSH_PORT=${SSH_PORT:-22}
     - LFS_START_SERVER=${LFS_START_SERVER:-true}
     - DB_TYPE=${DB_TYPE:-postgres}
-    - DB_HOST=${DB_HOST:-localhost:5432}
+    - DB_HOST=${DB_HOST:-db:5432}
     - DB_NAME=${DB_NAME:-gitbundle}
     - DB_USER=${DB_USER:-postgres}
     - DB_PASSWD=${DB_PASSWD:-postgres}
@@ -47,11 +42,6 @@ services:
     volumes:
     - /etc/localtime:/etc/localtime:ro
     - /etc/hosts:/etc/hosts:ro
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 200M
     environment:
     - BUNDLE_DEPLOYMENTS_GITBUNDLE_SERVER=${BUNDLE_DEPLOYMENTS_GITBUNDLE_SERVER:-}
     - BUNDLE_DEPLOYMENTS_GITBUNDLE_SKIP_VERIFY=${BUNDLE_DEPLOYMENTS_GITBUNDLE_SKIP_VERIFY:-false}
@@ -83,11 +73,6 @@ services:
     volumes:
     - /etc/localtime:/etc/localtime:ro
     - /etc/hosts:/etc/hosts:ro
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 200M
     environment:
     - BUNDLE_PODS_GITBUNDLE_SERVER=${BUNDLE_PODS_GITBUNDLE_SERVER:-}
     - BUNDLE_PODS_GITBUNDLE_SKIP_VERIFY=${BUNDLE_PODS_GITBUNDLE_SKIP_VERIFY:-false}
@@ -119,11 +104,6 @@ services:
     volumes:
     - /etc/localtime:/etc/localtime:ro
     - /etc/hosts:/etc/hosts:ro
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 200M
     environment:
     - BUNDLE_METRICS_GITBUNDLE_SERVER=${BUNDLE_METRICS_GITBUNDLE_SERVER:-}
     - BUNDLE_METRICS_GITBUNDLE_SKIP_VERIFY=${BUNDLE_METRICS_GITBUNDLE_SKIP_VERIFY:-false}
@@ -154,11 +134,6 @@ services:
     image: gitbundle/bundle-builds
     ports:
     - 8080:8080
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 400M
     environment:
     - BUNDLE_BUILDS_SERVER_HOST=${BUNDLE_BUILDS_SERVER_HOST:-localhost:8080}
     - BUNDLE_BUILDS_SERVER_PORT=${BUNDLE_BUILDS_SERVER_PORT:-:8080}
@@ -168,7 +143,7 @@ services:
     - BUNDLE_BUILDS_RPC_SECRET=${BUNDLE_BUILDS_RPC_SECRET:-}
     - BUNDLE_BUILDS_COOKIE_SECRET=${BUNDLE_BUILDS_COOKIE_SECRET:-}
     - BUNDLE_BUILDS_COOKIE_TIMEOUT=${BUNDLE_BUILDS_COOKIE_TIMEOUT:-720h}
-    - BUNDLE_BUILDS_GITBUNDLE_SERVER=${BUNDLE_BUILDS_GITBUNDLE_SERVER:-http://gitbundle:4000}
+    - BUNDLE_BUILDS_GITBUNDLE_SERVER=${BUNDLE_BUILDS_GITBUNDLE_SERVER:-http://example.gitbundle}
     - BUNDLE_BUILDS_GITBUNDLE_DEBUG=${BUNDLE_BUILDS_GITBUNDLE_DEBUG:-false}
     - BUNDLE_BUILDS_GITBUNDLE_SKIP_VERIFY=${BUNDLE_BUILDS_GITBUNDLE_SKIP_VERIFY:-true}
     - BUNDLE_BUILDS_DATABASE_DRIVER=${BUNDLE_BUILDS_DATABASE_DRIVER:-postgres}
@@ -198,41 +173,6 @@ services:
     container_name: bundle-runner-amd64
     image: gitbundle/bundle-builds-runner-docker
     platform: linux/amd64
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 200M
-    volumes:
-    - /var/run/docker.sock:/var/run/docker.sock
-    - /etc/localtime:/etc/localtime:ro
-    - /etc/hosts:/etc/hosts:ro
-    environment:
-    - BUNDLE_BUILDS_TRACE=${BUNDLE_BUILDS_TRACE:-true}
-    - BUNDLE_BUILDS_RPC_HOST=${BUNDLE_BUILDS_RPC_HOST:-bundle-builds:8080}
-    - BUNDLE_BUILDS_RPC_PROTO=${BUNDLE_BUILDS_RPC_PROTO:-http}
-    - BUNDLE_BUILDS_RPC_SECRET=${BUNDLE_BUILDS_RPC_SECRET:-}
-    - BUNDLE_BUILDS_RPC_DUMP_HTTP=${BUNDLE_BUILDS_RPC_DUMP_HTTP:-false}
-    - BUNDLE_BUILDS_RPC_DUMP_HTTP_BODY=${BUNDLE_BUILDS_RPC_DUMP_HTTP_BODY:-false}
-    - BUNDLE_BUILDS_TMATE_ENABLED=${BUNDLE_BUILDS_TMATE_ENABLED:-true}
-    - BUNDLE_BUILDS_RUNNER_CLONE_IMAGE=${BUNDLE_BUILDS_RUNNER_CLONE_IMAGE:-gitbundle/bundle-git}
-    - BUNDLE_BUILDS_RUNNER_CAPACITY=${BUNDLE_BUILDS_RUNNER_CAPACITY:-2}
-    - BUNDLE_BUILDS_DOCKER_STREAM_PULL=${BUNDLE_BUILDS_DOCKER_STREAM_PULL:-true}
-    - BUNDLE_BUILDS_PRIVILEGED_IMAGES=${BUNDLE_BUILDS_PRIVILEGED_IMAGES:-}
-    depends_on:
-    - bundle-builds
-    restart: always
-    networks:
-    - gitbundle-private
-  bundle-runner-arm64:
-    container_name: bundle-runner-arm64
-    image: gitbundle/bundle-builds-runner-docker
-    platform: linux/arm64
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 200M
     volumes:
     - /var/run/docker.sock:/var/run/docker.sock
     - /etc/localtime:/etc/localtime:ro
@@ -259,9 +199,10 @@ services:
     image: haproxy:lts-alpine
     ports:
     - '22:22'
+    - 80:80
     - 443:443
     volumes:
-    - ./haproxy.cfg:/etc/haproxy/haproxy.cfg:ro
+    - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
     - /etc/localtime:/etc/localtime:ro
     - /etc/hosts:/etc/hosts:ro
     depends_on:
@@ -277,11 +218,6 @@ services:
     volumes:
     - /etc/localtime:/etc/localtime:ro
     - /etc/hosts:/etc/hosts:ro
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 200M
     restart: always
     networks:
     - gitbundle-private

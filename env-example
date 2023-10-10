@@ -30,7 +30,7 @@ BUNDLE_BUILDS_PLUGIN_TOKEN=auto-generated-by-GitBundle
 BUNDLE_BUILDS_PRIVILEGED_IMAGES=gitbundle/bundle-docker,example.gitbundle/gitbundle/bundle-docker
 
 # bundle deployments server
-BUNDLE_DEPLOYMENTS_GITBUNDLE_SERVER=http://gitbundle:4000
+BUNDLE_DEPLOYMENTS_GITBUNDLE_SERVER=http://example.gitbundle
 BUNDLE_DEPLOYMENTS_GITBUNDLE_SKIP_VERIFY=true # maybe need for https, for http no need to configure
 BUNDLE_DEPLOYMENTS_DATABASE_DRIVER=postgres
 BUNDLE_DEPLOYMENTS_DATABASE_HOST=db:5432
@@ -48,6 +48,6 @@ BUNDLE_PODS_GITBUNDLE_SKIP_VERIFY=true
 BUNDLE_PODS_PLUGIN_TOKEN=auto-generated-by-GitBundle
 
 # bundle metrics server
-BUNDLE_METRICS_GITBUNDLE_SERVER=http://gitbundle:4000
+BUNDLE_METRICS_GITBUNDLE_SERVER=http://example.gitbundle
 BUNDLE_METRICS_GITBUNDLE_SKIP_VERIFY=true
 BUNDLE_METRICS_PLUGIN_TOKEN=auto-generated-by-GitBundle
