@@ -215,6 +215,7 @@ def haproxy(dependsOn):
         "volumes": containerVolumes(
             [
                 "./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro",
+                "./certs:/certs:ro",
             ]
         ),
         "depends_on": dependsOn,

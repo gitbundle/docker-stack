@@ -58,6 +58,11 @@ CLUSTER_TCP_ADDR = nsq:4150
 
 [redis]
 CONNECTION = redis://redis-server:6379
+
+# Configure bundle-build webhook for GitBundle
+# Provide your bundle-builds host (server or proxy)
+[webhook]
+ALLOWED_HOST_LIST = bundle-builds
 ```
 
 ## database not exists

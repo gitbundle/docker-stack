@@ -203,6 +203,7 @@ services:
     - 443:443
     volumes:
     - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    - ./certs:/certs:ro
     - /etc/localtime:/etc/localtime:ro
     - /etc/hosts:/etc/hosts:ro
     depends_on:
