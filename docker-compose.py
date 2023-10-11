@@ -202,7 +202,9 @@ def bundleRunnerServer(arch, dependsOn):
         "networks": networks(),
     }
 
-
+# The best way maybe is to install haproxy in your host machine
+# As the docker container permission limitation with host files,
+# your certs in your host machine maybe need to set 0644 perm for the haproxy container to run.
 def haproxy(dependsOn):
     return {
         "container_name": "haproxy",
