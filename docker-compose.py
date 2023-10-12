@@ -8,11 +8,16 @@ bundleBuildsServerDependsOn = [
     "nsq",
 ]
 
-dbHealthy = {
-    "db": {
-        "condition": "service_healthy",
-    }
-}
+gitbundleDependsOn = [
+    # {
+    #     "db": {
+    #         "condition": "service_healthy",
+    #     }
+    # },
+    "db",
+    "nsq",
+    "redis-server",
+]
 
 
 def haproxyDependsOn():
@@ -23,8 +28,8 @@ def haproxyDependsOn():
 
 def commonVolumes():
     return [
-        "/etc/localtime:/etc/localtime:ro", # sync localtime to container, worked for linux
-        "/etc/hosts:/etc/hosts:ro", # this maybe no need, when you have real-network domains
+        "/etc/localtime:/etc/localtime:ro",  # sync localtime to container, worked for linux
+        "/etc/hosts:/etc/hosts:ro",  # this maybe no need, when you have real-network domains
     ]
 
 
@@ -36,7 +41,7 @@ def main():
     return {
         "version": "3.8",
         "services": {
-            "gitbundle": gitbundle(dbHealthy, "gitbundle", "gitbundle/gitbundle"),
+            "gitbundle": gitbundle(gitbundleDependsOn, "gitbundle", "gitbundle/gitbundle"),
             "bundle-deployments": bundlePluginServer("BUNDLE_DEPLOYMENTS", ["db", "gitbundle", "redis-server", "nsq"]),
             "bundle-pods": bundlePluginServer("BUNDLE_PODS", ["db", "gitbundle", "redis-server", "nsq"]),
             "bundle-metrics": bundlePluginServer("BUNDLE_METRICS", ["db", "gitbundle", "redis-server", "nsq"]),
@@ -56,7 +61,7 @@ def main():
         "networks": {
             "gitbundle-private": {
                 "driver": "bridge",
-            }
+            },
         },
     }
 
@@ -92,11 +97,14 @@ def gitbundle(dependsOn, containerName, image):
             "DISABLE_REGISTRATION=${DISABLE_REGISTRATION:-false}",
             "REQUIRE_SIGNIN_VIEW=${REQUIRE_SIGNIN_VIEW:-false}",
             "SECRET_KEY=${SECRET_KEY:-}",
+            "NSQD_CLUSTER_TCP_ADDR=${NSQD_CLUSTER_TCP_ADDR:-}",
+            "REDIS_CONNECTION=${REDIS_CONNECTION:-}",
         ],
         "depends_on": dependsOn,
         "restart": "always",
         "networks": networks(),
     }
+
 
 # NOTE: some plugins may not have some environment variables, just ignore
 def bundlePluginServer(pluginName, dependsOn):
@@ -144,7 +152,7 @@ def bundleBuildsServer(dependsOn):
             "BUNDLE_BUILDS_SERVER_HOST=${BUNDLE_BUILDS_SERVER_HOST:-localhost:8080}",
             "BUNDLE_BUILDS_SERVER_PORT=${BUNDLE_BUILDS_SERVER_PORT:-:8080}",
             "BUNDLE_BUILDS_SERVER_PROTO=${BUNDLE_BUILDS_SERVER_PROTO:-http}",
-            "BUNDLE_BUILDS_SERVER_PROXY_HOST=${BUNDLE_BUILDS_SERVER_PROXY_HOST:-localhost:8084}", # maybe needed by gitbundle webhook
+            "BUNDLE_BUILDS_SERVER_PROXY_HOST=${BUNDLE_BUILDS_SERVER_PROXY_HOST:-bundle-builds:8080}",  # maybe needed by gitbundle webhook
             "BUNDLE_BUILDS_SERVER_PROXY_PROTO=${BUNDLE_BUILDS_SERVER_PROXY_PROTO:-http}",
             "BUNDLE_BUILDS_RPC_SECRET=${BUNDLE_BUILDS_RPC_SECRET:-}",
             "BUNDLE_BUILDS_COOKIE_SECRET=${BUNDLE_BUILDS_COOKIE_SECRET:-}",
@@ -192,7 +200,7 @@ def bundleRunnerServer(arch, dependsOn):
             "BUNDLE_BUILDS_RPC_DUMP_HTTP=${BUNDLE_BUILDS_RPC_DUMP_HTTP:-false}",
             "BUNDLE_BUILDS_RPC_DUMP_HTTP_BODY=${BUNDLE_BUILDS_RPC_DUMP_HTTP_BODY:-false}",
             "BUNDLE_BUILDS_TMATE_ENABLED=${BUNDLE_BUILDS_TMATE_ENABLED:-true}",
-            "BUNDLE_BUILDS_RUNNER_CLONE_IMAGE=${BUNDLE_BUILDS_RUNNER_CLONE_IMAGE:-gitbundle/bundle-git}", # need user release server with https, you can build your own clone image
+            "BUNDLE_BUILDS_RUNNER_CLONE_IMAGE=${BUNDLE_BUILDS_RUNNER_CLONE_IMAGE:-gitbundle/bundle-git}",  # need user release server with https, you can build your own clone image
             "BUNDLE_BUILDS_RUNNER_CAPACITY=${BUNDLE_BUILDS_RUNNER_CAPACITY:-2}",
             "BUNDLE_BUILDS_DOCKER_STREAM_PULL=${BUNDLE_BUILDS_DOCKER_STREAM_PULL:-true}",
             "BUNDLE_BUILDS_PRIVILEGED_IMAGES=${BUNDLE_BUILDS_PRIVILEGED_IMAGES:-}",
@@ -201,6 +209,7 @@ def bundleRunnerServer(arch, dependsOn):
         "restart": "always",
         "networks": networks(),
     }
+
 
 # The best way maybe is to install haproxy in your host machine
 # As the docker container permission limitation with host files,

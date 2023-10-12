@@ -2,6 +2,8 @@ DOMAIN=example.gitbundle.com
 DB_HOST=db:5432
 SECRET_KEY=your-32-length-secret # exclude special characters maybe better
 SSH_PORT=22
+NSQD_CLUSTER_TCP_ADDR=nsq:4150
+REDIS_CONNECTION=redis://redis-server:6379
 
 # bundle builds server
 BUNDLE_BUILDS_SERVER_PROXY_HOST=bundle-builds:8080
